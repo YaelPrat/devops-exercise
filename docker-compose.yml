@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    
+    ports:
+      - '5555:5555'
+    env_file: ./.env
+ 
+  postgres_server:
+    image: postgres:14.1-alpine
+    restart: always
+    env_file: ./.env
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db-postgres:/var/lib/postgresql/data
+volumes:
+  db-postgres:
+    driver: local
