@@ -54,7 +54,7 @@ def image():
     # Presuming you have AWS credentials set up in your environment or using IAM roles in EC2
     s3 = boto3.client('s3')
     bucket_name = "yaelzbuk165"
-    image_file = "jpg_44-2.jpg"
+    image_file = "aws-image.png"
 
     # Get the image object from S3
     image_object = s3.get_object(Bucket=bucket_name, Key=image_file)
@@ -62,7 +62,7 @@ def image():
     # Serve the image as a response
     return Response(
         image_object['Body'].read(),
-        mimetype='image/jpg',
+        mimetype='image/png',
         headers={
             "Content-Disposition": "inline; filename={}".format(image_file)
         }
