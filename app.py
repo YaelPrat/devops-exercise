@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template, Response, send_file
+from flask import Flask, request, render_template, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import boto3
@@ -54,19 +54,19 @@ def image():
     # Presuming you have AWS credentials set up in your environment or using IAM roles in EC2
     s3 = boto3.client('s3')
     bucket_name = "yaelzbuk165"
-    image_file = "aws-image.png"
+    image_file = "jpg_44-2.jpg"
 
     # Get the image object from S3
     image_object = s3.get_object(Bucket=bucket_name, Key=image_file)
 
-    # Save the image to a temporary file
-    image_temp_file = f"/tmp/{image_file}"  # Save in /tmp directory
-
-    with open(image_temp_file, 'wb') as f:
-        f.write(image_object['Body'].read())
-
-    # Serve the image using send_file
-    return send_file(image_temp_file, mimetype='image/png')
+    # Serve the image as a response
+    return Response(
+        image_object['Body'].read(),
+        mimetype='image/jpg',
+        headers={
+            "Content-Disposition": "inline; filename={}".format(image_file)
+        }
+    )
 
 
 @app.route('/users', methods=['POST'])
