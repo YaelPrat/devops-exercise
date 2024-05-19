@@ -22,3 +22,30 @@
 5. Create S3 bucket & upload image.png
     my bucket name is yaelbuk165
     NOTE: the bucket and the image.png needs to be with read access! the bucket need to be ACL enabled
+
+6. create ec2 
+7. conect to the ec2 & download git &docker 
+    sudo yum update -y
+
+    sudo yum install git -y
+
+    git — version
+---
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+
+sudo groupadd docker
+sudo gpasswd -a ec2-user docker
+newgrp docker
+
+
+8. git clone the code from GitHub
+
+9. rerun steps 1-4 in the ec2 instance
+
+docker run -it --rm --network devops-exercise_default  postgres psql -h devops-exercise-postgres_server-1 -U postgres
+ 
+NOTE: need to add inbound rule to the ec2. custom tcp 5555 anywhere
+    http 80 anywhere

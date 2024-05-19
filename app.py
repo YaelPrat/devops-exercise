@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import boto3
@@ -43,11 +43,30 @@ def home():
         db.session.add(new_user)
         db.session.commit()
 
-        bucket_name = 'yaelzbuk165'
-        media_url = f'https://{bucket_name}.s3.amazonaws.com/aws-image.png'
-        print(media_url)
-        return render_template("home.html", username=username, media_url=media_url)
+        # bucket_name = 'yaelzbuk165'
+        # media_url = f'https://{bucket_name}.s3.amazonaws.com/aws-image.png'
+        # print(media_url)
+        return render_template("home.html", username=username, media_url="/image")
     return render_template("index.html")
+
+@app.route('/image')
+def image():
+    # Presuming you have AWS credentials set up in your environment or using IAM roles in EC2
+    s3 = boto3.client('s3')
+    bucket_name = "yaelzbuk165"
+    image_file = "aws-image.png"
+
+    # Get the image object from S3
+    image_object = s3.get_object(Bucket=bucket_name, Key=image_file)
+
+    # Serve the image as a response
+    return Response(
+        image_object['Body'].read(),
+        mimetype='image/png',
+        headers={
+            "Content-Disposition": "inline; filename={}".format(image_file)
+        }
+    )
 
 
 @app.route('/users', methods=['POST'])
