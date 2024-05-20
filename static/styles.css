@@ -1,0 +1,201 @@
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
+}
+body, .navbar {
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    color: #007bff;
+}
+
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+img {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+    background-color: #fff;
+    transition: transform 0.3s ease-in-out;
+    margin: 10px; /* Add margin between images */
+}
+
+img:hover {
+    transform: scale(1.1);
+}
+
+
+
+form {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+input[type="submit"] {
+    background-color: #4caf50;
+    color: #fff;
+    cursor: pointer;
+}
+
+
+h2 {
+    color: #333;
+}
+
+
+.container {
+            max-width: 600px;
+            margin: 100px auto;
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #666;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+li {
+    margin-bottom: 15px;
+    margin-right: 10px;
+}
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 24px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+#landing-a, #landing{
+    border: 2px solid #007bff; /* Add a solid border */
+
+}
+
+
+a:hover {
+    color: #0056b3;
+}
+
+#landing-page {
+    background-image: url('https://static.vecteezy.com/system/resources/previews/002/713/943/non_2x/a-woman-is-watching-a-movie-on-her-laptop-while-eating-snack-hand-drawn-style-design-illustrations-vector.jpg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
+
+.review {
+    margin-bottom: 20px; /* Adjust the spacing between reviews */
+    border-bottom: 1px solid #ccc;
+}
+
+/* Optional styling for the container */
+.reviews-container {
+    margin-top: 20px; /* Adjust the top margin of the container */
+    border: 1px solid #ccc; /* Light color border */
+    padding: 10px;
+    border-radius: 5px;
+    width: 66.67%; /* Two-thirds of the page width */
+    margin: 0 auto;
+}
+h3 {
+    margin:0; /* Adjust to match the padding and border of the reviews container */
+   }
+textarea {
+    border: 1px solid #ccc; /* Set border color */
+    border-radius: 5px; /* Add border radius */
+    padding: 5px; /* Add padding */
+    margin-top: 5px; /* Add margin */
+    resize: vertical; /* Allow vertical resizing */
+    width: calc(100% - 12px); /* Adjust the width of the textarea */
+    box-sizing: border-box; /* Include padding and border in the width calculation */
+}
+
+.a-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid #007bff;
+    color: #007bff;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.a-button:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+.navbar {
+    width: 100%;
+    background-color: #333;
+    overflow: auto;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.navbar a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.navbar a.logout {
+    float: right; /* Align logout link to the right */
+}
+
+.add-review-container {
+            margin-top: 20px;
+}
