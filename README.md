@@ -1,14 +1,38 @@
+# Flask Application Deployment
+This project demonstrates the process of developing, containerizing, and deploying a Flask web application. The application features user authentication, image display from S3, and is scalable using AWS EC2, Auto Scaling, and Load Balancing.
+
+## Introduction
+This repository contains a Flask web application that allows users to sign up with a username and password. The application saves user details in a PostgreSQL database and displays a personalized greeting along with an image fetched from an S3 bucket. The project further includes steps to containerize the application using Docker, deploy it on an AWS EC2 instance, and set up load balancing and auto-scaling to handle varying levels of traffic efficiently.
+
+## Features
+User registration with username and password.
+User details stored in PostgreSQL database.
+Image display from S3 bucket with access control.
+Containerized application using Docker and Docker Compose.
+Deployment on AWS EC2 instances.
+Auto-scaling and load balancing setup to ensure high availability and scalability.
+
 ## instructions:
+### Local
 1. start the containers:
-    - docker-compose up
+```bash
+docker-compose up
+```
 2. enter the postgres server using another container:
    NOTE: after build the docker-compose open new terminal and look for the following vars:
-         >> docker network ls
-         you should see the dir name + "_default" as the network
-         >> docker ps
-         you will see the name of the server, in my case "yael-project-postgress_server-1"
-   Then you can run the command:
-    - docker run -it --rm --network yael-project_default postgres psql -h yael-project-postgres_server-1 -U postgres
+```bash
+    docker network ls
+   ```
+you should see the dir name + "_default" as the network
+```bash
+    docker docker ps
+   ```
+you will see the name of the server, in my case "yael-project-postgress_server-1"
+Then you can run the command:
+```bash
+    docker run -it --rm --network <dirname>_default postgres psql -h <server name> -U postgres
+
+```
 
 
 3. create the 'usersdb' database, connect to it and create the 'users' table:
@@ -20,17 +44,23 @@
 4. go to localhost:5555/users
 
 5. Create S3 bucket & upload image.png
-    my bucket name is yaelbuk165
     NOTE: the bucket and the image.png needs to be with read access! the bucket need to be ACL enabled
 
+### In The cloud
 6. create ec2 
-7. conect to the ec2 & download git &docker 
-    sudo yum update -y
 
-    sudo yum install git -y
+7. connect to the ec2 & download git &docker 
 
-    git — version
+```bash
+  sudo yum update -y
+
+  sudo yum install git -y
+
+  git — version
+```
+  
 ---
+```bash
 sudo yum update -y
 sudo yum install -y docker
 sudo service docker start
@@ -39,13 +69,173 @@ sudo usermod -a -G docker ec2-user
 sudo groupadd docker
 sudo gpasswd -a ec2-user docker
 newgrp docker
-
-
+```
 8. git clone the code from GitHub
-
-9. rerun steps 1-4 in the ec2 instance
+```bash
+git clone <project Github URL>
+```
+9. rerun steps 1-4 in the EC2 instance
+```bash
 
 docker run -it --rm --network devops-exercise_default  postgres psql -h devops-exercise-postgres_server-1 -U postgres
- 
-NOTE: need to add inbound rule to the ec2. custom tcp 5555 anywhere
-    http 80 anywhere
+ ```
+NOTE: need to add inbound rule to the EC2. 
+   * custom tcp 5555 anywhere (the port in the app)
+   * http 80 anywhere
+
+---
+
+## Load Balancing and Auto Scaling
+
+In this part of the lab, we set up the following components to ensure our Flask application is highly available and can handle increased traffic:
+
+1. **IAM Role for EC2 with S3 Full Access**
+2. **Template for the EC2**
+3. **Auto Scaling Group**
+4. **Load Balancer**
+
+### Step-by-Step Instructions
+
+### 1. Create IAM Role for EC2 with S3 Full Access
+
+1. **Navigate to IAM in AWS Console**:
+   - Go to the IAM section in the AWS Management Console.
+   - Create a new role for EC2 with the AmazonS3FullAccess policy attached.
+
+2. **Attach the IAM Role to EC2 Instances**:
+   - Ensure this role is attached to the EC2 instances that will be part of the Auto Scaling Group.
+
+### 2. Create a Launch Template for EC2
+
+1. **Launch Template Configuration**:
+   - Go to the EC2 Dashboard and select **Launch Templates**.
+   - Create a new launch template.
+   - Provide a name and description for the template.
+   - In the **Launch Template Content** section, specify the AMI ID, instance type(t2. micro), key pair, security groups, and the IAM role created earlier.
+   - In the **Advanced Details** section, add the user data script to install Docker, Docker Compose, clone the repository, and run the application.
+
+   Example user data script:
+   ```bash
+    #!/bin/bash
+    
+     Update and install necessary packages
+    sudo yum update -y
+    sudo yum install git -y
+    sudo yum install -y docker
+    
+     Start Docker service
+    sudo service docker start
+    
+     Install Docker Compose
+    sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    
+     Add ec2-user to the docker group
+    sudo usermod -a -G docker ec2-user
+    
+     Clone your project repository
+    git clone https://github.com/YaelPrat/devops-exercise.git
+    
+     Change directory to your project
+    cd devops-exercise
+    
+     Create .env file for Docker Compose, You will enter your env vars
+    echo "DB_USERNAME=<username>
+    DB_PASSWORD=<password>
+    DB_NAME=<DB_NAME>
+    DB_HOST=<Host_name>
+    DB_PORT=5432" > .env
+    
+     Build and run Docker Compose services
+    docker-compose up --build -d
+    
+    Wait for PostgreSQL server to be ready
+    until sudo docker-compose exec postgres_server pg_isready -U postgres; do
+      echo "Waiting for PostgreSQL to be ready..."
+      sleep 5
+    done
+    
+     Run database setup commands
+    sudo docker-compose exec postgres_server psql -U postgres -c "CREATE DATABASE usersdb;"
+    sudo docker-compose exec postgres_server psql -U postgres -d usersdb -c "
+    CREATE TABLE users (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(50) NOT NULL,
+      password VARCHAR(50) NOT NULL
+    );"
+    
+    Check if the table was created successfully
+    sudo docker-compose exec postgres_server psql -U postgres -d usersdb -c "\dt"
+
+    ```
+
+### 3. Create an Auto Scaling Group
+
+1. **Auto Scaling Group Configuration**:
+   - Go to the EC2 Dashboard and select **Auto Scaling Groups**.
+   - Create a new Auto Scaling Group using the launch template created in the previous step.
+   - Configure the desired capacity, minimum capacity, and maximum capacity. For example, set the desired capacity to 1, minimum to 1, and maximum to 2.
+   - Select the appropriate VPC and subnets.
+
+### 4. Create a Load Balancer
+
+1. **Load Balancer Configuration**:
+   - Go to the EC2 Dashboard and select **Load Balancers**.
+   - Create a new Classic Load Balancer.
+   - Configure the load balancer to listen on port 80 (HTTP).
+   - Select the VPC and subnets.
+   - Configure health checks. For example, set the ping path to `/` and the timeout and interval settings.
+
+2. **Attach Security Groups**:
+   - Ensure the load balancer security group allows inbound traffic on port 80.
+   - Ensure the EC2 instances' security group allows inbound traffic from the load balancer's security group on port 80 and 5555.
+
+3. **Register Targets**:
+   - Register the EC2 instances in the Auto Scaling Group with the load balancer.
+
+### Testing the Load Balancer and Auto Scaling
+
+1. **Verify the Setup**:
+   - Ensure the EC2 instances are running and registered with the load balancer.
+   - Access the load balancer's DNS name in your browser to verify the application is reachable.
+
+2. **Simulate Load**:
+   - To test the auto-scaling functionality, simulate a load on the application.
+   - Install `wrk` or any other load testing tool on your local machine.
+
+   Example commands to install and run `wrk`:
+   ```bash
+   brew install wrk
+   wrk -t12 -c10000 -d200s http://<load_balancer_dns_name>
+   ```
+
+   This command will send a high number of requests to the load balancer, triggering the auto-scaling policy.
+
+3. **Monitor Auto Scaling**:
+   - Go to the Auto Scaling Groups section in the EC2 Dashboard.
+   - Monitor the creation of additional instances as the load increases.
+   - Verify that the new instances are added to the load balancer and are serving requests.
+
+
+## Usage
+* Open the browser, enter the load balancer DNS URL.
+* Enter the username and password, press Submit
+* You will be redirected to the home page, display the username and the S3 image.
+
+## Screen Shots:
+#### The website, using the load balancer DNS
+![צילום מסך 2024-05-20 ב-16.48.03.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-16.48.03.png)
+#### The user name display with the private image
+![צילום מסך 2024-05-20 ב-16.47.45.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-16.47.45.png)
+#### Test the load balancer
+![צילום מסך 2024-05-20 ב-15.51.18.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-15.51.18.png)
+
+#### The new instance pending After the request test
+![צילום מסך 2024-05-20 ב-15.50.33.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-15.50.33.png)
+
+
+
+
+
+
+
