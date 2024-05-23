@@ -1,12 +1,12 @@
 # Flask Application Deployment
-This project demonstrates the process of developing, containerizing, and deploying a Flask web application. The application features user authentication, image display from S3, and is scalable using AWS EC2, Auto Scaling, and Load Balancing.
+This project demonstrates the process of developing, containerizing, and deploying a Flask web application. The application features user authentication, and image display from S3, and is scalable using AWS EC2, Auto Scaling, and Load Balancing.
 
 ## Introduction
 This repository contains a Flask web application that allows users to sign up with a username and password. The application saves user details in a PostgreSQL database and displays a personalized greeting along with an image fetched from an S3 bucket. The project further includes steps to containerize the application using Docker, deploy it on an AWS EC2 instance, and set up load balancing and auto-scaling to handle varying levels of traffic efficiently.
 
 ## Features
 User registration with username and password.
-User details stored in PostgreSQL database.
+User details are stored in the PostgreSQL database.
 Image display from S3 bucket with access control.
 Containerized application using Docker and Docker Compose.
 Deployment on AWS EC2 instances.
@@ -18,8 +18,8 @@ Auto-scaling and load balancing setup to ensure high availability and scalabilit
 ```bash
 docker-compose up
 ```
-2. enter the postgres server using another container:
-   NOTE: after build the docker-compose open new terminal and look for the following vars:
+2. enter the Postgres server using another container:
+   NOTE: After build the docker-compose open a new terminal and look for the following vars:
 ```bash
     docker network ls
    ```
@@ -35,7 +35,7 @@ Then you can run the command:
 ```
 
 
-3. create the 'usersdb' database, connect to it and create the 'users' table:
+3. create the 'usersdb' database, connect to it, and create the 'users' table:
     - create database usersdb;
     - \connect usersdb
       - create table users (
@@ -44,9 +44,9 @@ Then you can run the command:
 4. go to localhost:5555/users
 
 5. Create S3 bucket & upload image.png
-    NOTE: the bucket and the image.png needs to be with read access! the bucket need to be ACL enabled
+    NOTE: the bucket and the image.png need to be with read access! The bucket needs to be ACL-enabled
 
-### In The cloud
+### Cloud Computing
 6. create ec2 
 
 7. connect to the ec2 & download git &docker 
@@ -79,9 +79,9 @@ git clone <project Github URL>
 
 docker run -it --rm --network devops-exercise_default  postgres psql -h devops-exercise-postgres_server-1 -U postgres
  ```
-NOTE: need to add inbound rule to the EC2. 
-   * custom tcp 5555 anywhere (the port in the app)
-   * http 80 anywhere
+NOTE: You need to add an inbound rule to the EC2. 
+   * Custom TCP 5555 anywhere (the port in the app)
+   * HTTP 80 anywhere
 
 ---
 
@@ -123,39 +123,39 @@ In this part of the lab, we set up the following components to ensure our Flask 
     sudo yum install git -y
     sudo yum install -y docker
     
-     Start Docker service
+     #Start Docker service
     sudo service docker start
     
-     Install Docker Compose
+     #Install Docker Compose
     sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     
-     Add ec2-user to the docker group
+     #Add ec2-user to the docker group
     sudo usermod -a -G docker ec2-user
     
-     Clone your project repository
+     #Clone your project repository
     git clone https://github.com/YaelPrat/devops-exercise.git
     
-     Change directory to your project
+     #Change directory to your project
     cd devops-exercise
     
-     Create .env file for Docker Compose, You will enter your env vars
+     #Create .env file for Docker Compose, You will enter your env vars
     echo "DB_USERNAME=<username>
     DB_PASSWORD=<password>
     DB_NAME=<DB_NAME>
     DB_HOST=<Host_name>
     DB_PORT=5432" > .env
     
-     Build and run Docker Compose services
+    # Build and run Docker Compose services
     docker-compose up --build -d
     
-    Wait for PostgreSQL server to be ready
+    # Wait for the PostgreSQL server to be ready
     until sudo docker-compose exec postgres_server pg_isready -U postgres; do
       echo "Waiting for PostgreSQL to be ready..."
       sleep 5
     done
     
-     Run database setup commands
+     # Run database setup commands
     sudo docker-compose exec postgres_server psql -U postgres -c "CREATE DATABASE usersdb;"
     sudo docker-compose exec postgres_server psql -U postgres -d usersdb -c "
     CREATE TABLE users (
@@ -164,7 +164,7 @@ In this part of the lab, we set up the following components to ensure our Flask 
       password VARCHAR(50) NOT NULL
     );"
     
-    Check if the table was created successfully
+    #Check if the table was created successfully
     sudo docker-compose exec postgres_server psql -U postgres -d usersdb -c "\dt"
 
     ```
@@ -218,20 +218,27 @@ In this part of the lab, we set up the following components to ensure our Flask 
 
 
 ## Usage
-* Open the browser, enter the load balancer DNS URL.
+* Open the browser, and enter the load balancer DNS URL.
 * Enter the username and password, press Submit
-* You will be redirected to the home page, display the username and the S3 image.
+* You will be redirected to the home page, displaying the username and the S3 image.
 
 ## Screen Shots:
-#### The website, using the load balancer DNS
-![צילום מסך 2024-05-20 ב-16.48.03.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-16.48.03.png)
-#### The user name display with the private image
-![צילום מסך 2024-05-20 ב-16.47.45.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-16.47.45.png)
-#### Test the load balancer
-![צילום מסך 2024-05-20 ב-15.51.18.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-15.51.18.png)
 
-#### The new instance pending After the request test
-![צילום מסך 2024-05-20 ב-15.50.33.png](..%2F..%2F..%2FDesktop%2Fscreen%20shot%20for%20devops%20project%2F%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202024-05-20%20%D7%91-15.50.33.png)
+#### The website, using the load balancer DNS
+
+<img width="1512" alt="צילום מסך 2024-05-20 ב-16 48 03" src="https://github.com/YaelPrat/devops-exercise/assets/79912345/df0e9274-3526-4beb-90fe-9add5073e331">
+
+
+#### The user name displayed with the private image
+
+<img width="1512" alt="צילום מסך 2024-05-20 ב-16 47 45" src="https://github.com/YaelPrat/devops-exercise/assets/79912345/3d3f502f-06e8-4ac0-a8fd-48a295d3cb18">
+
+#### Test the load balancer
+
+<img width="564" alt="צילום מסך 2024-05-20 ב-15 51 18" src="https://github.com/YaelPrat/devops-exercise/assets/79912345/cdb22714-01d3-43b6-bb7d-bb2b7bbf6066">
+
+#### The new instance is pending After the request test
+<img width="1238" alt="צילום מסך 2024-05-20 ב-15 50 33" src="https://github.com/YaelPrat/devops-exercise/assets/79912345/5b74f2a6-2232-4b12-bb45-2b4e9b1d6e9a">
 
 
 
